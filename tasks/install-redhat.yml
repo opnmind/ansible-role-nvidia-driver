@@ -15,7 +15,7 @@
   yum:
     name: dkms
     state: present
-    gpgcheck: no
+    disable_gpg_check: yes
 
 - name: add repo
   yum_repository:
