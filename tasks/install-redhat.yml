@@ -1,11 +1,4 @@
 ---
-- name: add epel repo
-  yum_repository:
-    name: epel
-    description: EPEL YUM repo
-    baseurl: "{{ nvidia_driver_rhel_epel_repo_baseurl }}"
-    gpgkey: "{{ nvidia_driver_rhel_epel_repo_gpgkey }}"
-
 - name: install dependencies
   yum: name=dkms
 
