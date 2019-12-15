@@ -1,6 +1,6 @@
 ---
-- name: Install epel-elease
-    yum: name=epel-release state=latest update_cache=yes disable_gpg_check=yes
+#- name: Install epel-elease
+#  yum: name=epel-release state=latest update_cache=yes disable_gpg_check=yes
 
 - name: Install Huawei Cloud Repo for CentOS-7 python36 package
   yum_repository:
