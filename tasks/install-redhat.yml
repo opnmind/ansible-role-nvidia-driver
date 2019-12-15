@@ -1,6 +1,21 @@
 ---
+- name: Install epel-elease
+    yum: name=epel-release state=latest update_cache=yes disable_gpg_check=yes
+
+- name: Install Huawei Cloud Repo for CentOS-7 python36 package
+  yum_repository:
+    name: CentOS-7_Huawei-Repo
+    description: CentOS-7 Repo for python36
+    baseurl: https://mirrors.huaweicloud.com/centos/7/os/x86_64/
+    gpgkey: https://mirrors.huaweicloud.com/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7
+    gpgcheck: yes
+    enabled: yes
+
 - name: install dependencies
-  yum: name=dkms
+  yum:
+    name: dkms
+    state: present
+    gpgcheck: no
 
 - name: add repo
   yum_repository:
