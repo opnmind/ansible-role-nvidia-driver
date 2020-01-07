@@ -17,6 +17,12 @@
     state: present
     disable_gpg_check: yes
 
+- name: Ensure GRUB_CMDLINE_LINUX is set for nvidia
+  lineinfile:
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX="
+    line: GRUB_CMDLINE_LINUX="nouveau.modeset=0 rd.driver.blacklist=nouveau"
+
 - name: add repo
   yum_repository:
     name: cuda
@@ -29,6 +35,7 @@
     name: "{{ nvidia_driver_package_version | ternary('cuda-drivers='+nvidia_driver_package_version, 'cuda-drivers') }}"
     state: "{{ nvidia_driver_package_state }}"
     autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+    disable_gpg_check: yes
   register: install_driver
 
 # The driver package pulls in the latest kernel-headers package, but not the
@@ -64,5 +71,11 @@
       - kernel-debug-devel
       - kernel-headers
     state: latest
+    disable_gpg_check: yes
   register: kernel_update
   when: kernel_version.msg[0].release != kernel_headers_version.msg[0].release
+
+- name: regenerate initrd
+  shell: dracut -f -v
+  args:
+    executable: /bin/bash
