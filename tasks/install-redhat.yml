@@ -65,7 +65,10 @@
 # latest kernel. Check to see if there is a mismatch.
 
 - name: upgrade all packages
-  yum: name=* state=latest disable_gpg_check=yes
+  yum:
+    name: "*"
+    state: latest
+    disable_gpg_check: yes
 
 - name: regenerate initrd
   shell: |
