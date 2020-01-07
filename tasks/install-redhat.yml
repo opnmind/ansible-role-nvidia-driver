@@ -70,6 +70,6 @@
 - name: regenerate initrd
   shell: |
     grub2-mkconfig -o /boot/grub2/grub.cfg
-    dracut -f
+    dracut -f /boot/initramfs-$(rpm -qa kernel | sort -V | tail -1 | sed "s/kernel-//g").img $(rpm -qa kernel | sort -V | tail -1 | sed "s/kernel-//g") -v
   args:
     executable: /bin/bash
