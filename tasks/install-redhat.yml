@@ -11,6 +11,12 @@
 #    gpgcheck: yes
 #    enabled: yes
 
+- name: install epel-release
+  yum:
+    name: epel-release
+    state: latest
+    disable_gpg_check: yes
+
 - name: get kernel version
   shell: uname -r
   args:
@@ -33,12 +39,6 @@
       - dkms
     state: present
     disable_gpg_check: yes
-
-#- name: install dependencies
-#  yum:
-#    name: dkms
-#    state: present
-#    disable_gpg_check: yes
 
 - name: Ensure GRUB_CMDLINE_LINUX is set for nvidia
   lineinfile:
