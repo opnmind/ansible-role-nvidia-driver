@@ -30,7 +30,7 @@
       - kernel-devel-{{ kernel_version.stdout }}
       - kernel-debug-devel-{{ kernel_version.stdout }}
       - kernel-headers-{{ kernel_version.stdout }}
-      - state
+      - dkms
     state: present
     disable_gpg_check: yes
 
@@ -65,10 +65,11 @@
 # latest kernel. Check to see if there is a mismatch.
 
 - name: upgrade all packages
-  yum: name=* state=latest
-    disable_gpg_check: yes
+  yum: name=* state=latest disable_gpg_check=yes
 
 - name: regenerate initrd
-  shell: dracut -f -v
+  shell: |
+    grub2-mkconfig -o /boot/grub2/grub.cfg
+    dracut -f
   args:
     executable: /bin/bash
