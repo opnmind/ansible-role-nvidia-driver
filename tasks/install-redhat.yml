@@ -11,6 +11,16 @@
 #    gpgcheck: yes
 #    enabled: yes
 
+- name: get kernel version
+  shell: uname -r
+  args:
+    executable: /bin/bash
+  register: kernel_version
+
+- name: Get actual kernel
+  debug:
+    msg: actual booted kernel version is {{ kernel_version }}.
+
 - name: install dependencies
   yum:
     name: dkms
@@ -46,20 +56,23 @@
     list: kernel
   register: yum_list
 
-- name: register installed kernel version
+- name: register installed kernel versions
   debug:
     msg: "{{ yum_list.results | selectattr('yumstate', 'equalto', 'installed') | list }}"
-  register: kernel_version
+  register: kernel_versions
+
+- debug:
+    msg: installed kernel versions are  {{ kernel_versions }}.
 
 - name: check kernel-headers versions
   yum:
     list: kernel-headers
   register: yum_list
 
-- name: register installed kernel-headers version
+- name: register installed kernel-headers versions
   debug:
     msg: "{{ yum_list.results | selectattr('yumstate', 'equalto', 'installed') | list }}"
-  register: kernel_headers_version
+  register: kernel_headers_versions
 
 - name: update kernel if headers don't match
   yum:
@@ -73,7 +86,7 @@
     state: latest
     disable_gpg_check: yes
   register: kernel_update
-  when: kernel_version.msg[0].release != kernel_headers_version.msg[0].release
+  when: kernel_versions.msg[0].release != kernel_headers_versions.msg[0].release
 
 - name: regenerate initrd
   shell: dracut -f -v
