@@ -19,13 +19,26 @@
 
 - name: Get actual kernel
   debug:
-    msg: actual booted kernel version is {{ kernel_version }}.
+    msg: actual booted kernel version is {{ kernel_version.stdout }}.
 
-- name: install dependencies
+- name: update kernel if headers don't match
   yum:
-    name: dkms
+    name:
+      - kernel-{{ kernel_version.stdout }}
+      - kernel-tools-{{ kernel_version.stdout }}
+      - kernel-tools-libs-{{ kernel_version.stdout }}
+      - kernel-devel-{{ kernel_version.stdout }}
+      - kernel-debug-devel-{{ kernel_version.stdout }}
+      - kernel-headers-{{ kernel_version.stdout }}
+      - state
     state: present
     disable_gpg_check: yes
+
+#- name: install dependencies
+#  yum:
+#    name: dkms
+#    state: present
+#    disable_gpg_check: yes
 
 - name: Ensure GRUB_CMDLINE_LINUX is set for nvidia
   lineinfile:
@@ -51,42 +64,9 @@
 # The driver package pulls in the latest kernel-headers package, but not the
 # latest kernel. Check to see if there is a mismatch.
 
-- name: check kernel versions
-  yum:
-    list: kernel
-  register: yum_list
-
-- name: register installed kernel versions
-  debug:
-    msg: "{{ yum_list.results | selectattr('yumstate', 'equalto', 'installed') | list }}"
-  register: kernel_versions
-
-- debug:
-    msg: installed kernel versions are  {{ kernel_versions }}.
-
-- name: check kernel-headers versions
-  yum:
-    list: kernel-headers
-  register: yum_list
-
-- name: register installed kernel-headers versions
-  debug:
-    msg: "{{ yum_list.results | selectattr('yumstate', 'equalto', 'installed') | list }}"
-  register: kernel_headers_versions
-
-- name: update kernel if headers don't match
-  yum:
-    name:
-      - kernel
-      - kernel-tools
-      - kernel-tools-libs
-      - kernel-devel
-      - kernel-debug-devel
-      - kernel-headers
-    state: latest
+- name: upgrade all packages
+  yum: name=* state=latest
     disable_gpg_check: yes
-  register: kernel_update
-  when: kernel_versions.msg[0].release != kernel_headers_versions.msg[0].release
 
 - name: regenerate initrd
   shell: dracut -f -v
