@@ -40,6 +40,14 @@
     state: present
     disable_gpg_check: yes
 
+# The driver package pulls in the latest kernel-headers package, but not the
+# latest kernel. Check to see if there is a mismatch.
+
+- name: upgrade all packages
+  shell: yum -y update --nogpgcheck
+  args:
+    executable: /bin/bash
+
 - name: Ensure GRUB_CMDLINE_LINUX is set for nvidia
   lineinfile:
     path: /etc/default/grub
@@ -60,14 +68,6 @@
     autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
     disable_gpg_check: yes
   register: install_driver
-
-# The driver package pulls in the latest kernel-headers package, but not the
-# latest kernel. Check to see if there is a mismatch.
-
-- name: upgrade all packages
-  shell: yum -y update --nogpgcheck
-  args:
-    executable: /bin/bash
 
 - name: regenerate initrd
   shell: |
